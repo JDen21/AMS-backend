@@ -41,13 +41,13 @@ app.post('/user/init/:id', (req,res) =>{
     // console.log(req.params.id)   
     let data = {
         vibration : 5,
-        pulse : 5,
+        pulse : 6,
         responder : 5,
         location : 5,
         distance : 5,
         latitude :  5,
         longhitude : 5,
-        name: "Den Garcia"
+        name: "D Garcia"
     }
     res.send(data)
 })
