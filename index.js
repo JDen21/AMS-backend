@@ -18,13 +18,38 @@ app.post('/', (req,res)=>{
     console.log('backend')
     res.send('backend')
 })
- 
+  
 // login
-app.post('/login',(req,res) => {
-    let data = {
-        name: req.body.name,
-        pass: req.body.pass,
-        type: req.body.type
+app.post('/login/:type',(req,res) => {
+    const data = { 
+        $and:[
+           { name: req.body.name},
+           {password: req.body.password}
+        ]
+    }
+    // console.log(data)
+    if(req.params.type === 'benefactor'){
+        Benefactor.findOne(data, (err, found) =>{
+            if(err)
+                console.log('/login: ' + err)
+            if(!found)
+                res.send('account not found')
+            if(found)
+                res.send(found._id)
+            // console.log(found)
+        })
+    }
+
+    if(req.params.type === 'user'){
+        User.findOne(data, (err, found) =>{
+            if(err)
+                console.log('/login: ' + err)
+            if(!found)
+                res.send('account not found')
+            if(found)
+                res.send(found._id)
+            // console.log(found)
+        })
     }
 })
 
@@ -34,9 +59,10 @@ app.post('/signup/:type', (req,res) =>{
 
     if(req.params.type === 'benefactor'){
         // define data content
+        // console.log(req.body.password)
         const data = {
             name: req.body.name,
-            number: req.body.number,
+            mobile: req.body.number,
             org: req.body.org,
             email: req.body.email,
             address: req.body.address,
@@ -62,7 +88,7 @@ app.post('/signup/:type', (req,res) =>{
             mobile: req.body.mobile,
             device: req.body.device,
             password: req.body.password,
-            benefactorID: '62392955a8a22da8c6e2c52f',  //add default id
+            benefactorID: '62393ea8e92966e71c2b441b',  //add default id
             vibration: 0,
             pulse: 0,
             lat: 0,
