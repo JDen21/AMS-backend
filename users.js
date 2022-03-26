@@ -51,13 +51,43 @@ router.post('/init/:id', (req,res) =>{
 })
 
 router.post('/change-benefactor/:id', (req, res) => {
-    res.send('apple')
-})
 
+    const options = {
+        returnDocument: 'after',
+        returnNewDocument: true
+    }
+    
+    const queryBenefactor =  {name: req.body.request}
+        
+    // console.log(queryBenefactor)
+    // saves user to chosen benefactors requestIDs
+    // saves chosen benefactors id to users pending request
+    // benefactor still has to accept tho
+    User.findOne({_id: req.params.id}, (err, found) =>{
+        if(err)
+            throw err
+        if(found){
+            Benefactor.findOneAndUpdate(queryBenefactor, {
+                $push: {
+                    requestIDs: found
+                }
+            }, options, (err2, found2) =>{
+                if(err2) 
+                    throw err2
+                if(found2){  
+                    User.findOneAndUpdate({_id:req.params.id},{request: found2._id}, options)
+                }
+            }) 
+
+       
+        }
+    } )
+})
+ 
 router.post('/code/:id', (req,res) =>{
     // customize test.txt
     // send to frontend
-   res.download('./test.txt')
+   res.download('./test.txt') 
 })
 
 module.exports = router

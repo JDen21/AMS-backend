@@ -24,11 +24,12 @@ const BenefactorSchema = new Schema({
     name: String,
     mobile: String,
     email: String,
+    gender: String,
     org: String,
     address: String,
     password: String,
-    userIDs: [String],
-    requestIDs: [String] //ids of requesting users
+    userIDs: [UserSchema],
+    requestIDs: [UserSchema] //ids of requesting users
 })
 
 const User = mongoose.model('User', UserSchema)
