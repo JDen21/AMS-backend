@@ -12,7 +12,7 @@ const app = express()
 const http = require('http').createServer(app)
 const io = require('socket.io')(http, {
     cors: {
-        origin: [ 'http://localhost:8081' ],
+        origin: [ 'http://localhost:8081' ], 
         credentials: true
     }
 })
@@ -174,9 +174,68 @@ app.post('/gsm-update/:id', (req,res) => {
     })
 })
 
+// path for notifs in benefactor page
+// query color=red, yellow, blue
+// ?color=red
+app.post('/notifications/:id', (req, res) =>{
+    const color = req.query.color
+
+    if(color === 'red'){
+        // respond to accident
+        const data = {
+            lat: req.query.lat,
+            lon: req.query.lon,
+            vib: req.query.vib,
+            pulse: req.query.pulse,
+            name: req.query.name,
+            color: color
+        }
+        // if name found in benefactor user list, notify else ignore
+        // 'http://localhost:3000/notifications/1234567?lat=24&lon=23&vib=65&pulse=40&name=myName&color=red'
+        // io.sockets.in(req.params.id).emit('redNotif', data)
+
+        Benefactor.findOne({_id: req.params.id}, (err, found) =>{
+            if(err)
+                throw err
+            if(!found)
+                console.log('no found benefactor with the given id') //benefactor status 404
+            if(found){
+                found.userIDs.forEach(uid => {
+                    if(uid.name === data.name)
+                        io.sockets.in(req.params.id).emit('redNotif', uid, data)
+                });
+            }
+            
+        })
+    }
+    if(color === 'yellow'){
+        // remove user from user list
+
+    }
+    if(color === 'blue'){
+        // incoming user request
+        //http://localhost:3000/notifications/1234567?color=blue&uid=1234567890
+        User.findOne({_id: req.query.uid}, (err, found) => {
+            if(err)
+                throw err
+            if(found){
+                const data = {
+                    name: found.name,
+                    address: found.address,
+                    update: found.update,
+                    mobile: found.mobile,
+                    device: found.device,
+                    gender: found.gender,
+                    email: found.email,
+                    color: 'blue'
+                }
+                io.sockets.in(req.params.id).emit('blueNotif', data)
+            }
+
+        })
+    }
+})
 
 http.listen(port,()=>{ 
     console.log('listening to port ' + port)
 })   
-
-module.exports = io

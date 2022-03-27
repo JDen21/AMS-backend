@@ -1,4 +1,5 @@
 const express = require('express')
+const io = require('.')
 const router = express.Router()
 const [User, Benefactor] = require('./database')
 
@@ -38,15 +39,6 @@ router.post('/init/:id', (req,res) =>{
     })
 })
 
-// path to add users and remove from request list
-
-
-// path for notifs in benefactor page
-// query color=red, yellow, blue
-// 
-router.post('/notifications/:id', (req, res) =>{
-
-})
 
 
 // move requester to user
