@@ -37,7 +37,7 @@ io.on('connection',(socket) =>{
     })
 })
 
-app.get('/', (req,res) =>{
+app.post('/', (req,res) =>{
     res.send('working')
 })
 
