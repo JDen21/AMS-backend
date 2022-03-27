@@ -37,6 +37,10 @@ io.on('connection',(socket) =>{
     })
 })
 
+app.get('/', (req,res) =>{
+    res.send('working')
+})
+
 // login
 app.post('/login/:type',(req,res) => {
     const data = { 
