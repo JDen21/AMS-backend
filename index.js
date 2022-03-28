@@ -41,6 +41,10 @@ app.post('/', (req,res) =>{
     res.send('working')
 })
 
+app.get('/', (req,res) =>{
+    res.send('my home page')
+})
+
 // login
 app.post('/login/:type',(req,res) => {
     const data = { 
