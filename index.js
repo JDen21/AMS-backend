@@ -1,4 +1,4 @@
-const port = 3000 || process.env.PORT
+const port =  process.env.PORT || 3000
 const tempID = '62407f0b58aa79d8dbe701db'  //id for default benefactor
  
 
