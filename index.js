@@ -238,7 +238,7 @@ app.post('/notifications/:id/:name', (req, res) =>{
                     color: 'blue'
                 }
                 Benefactor.findOne({name: req.params.name}, (err1, found1)=>{
-                    if(er1r)
+                    if(err1)
                         throw err1
                     if(found1){
                         io.sockets.in(found1._id).emit('blueNotif', data)
