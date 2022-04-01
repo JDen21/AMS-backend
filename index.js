@@ -1,5 +1,5 @@
 const port =  process.env.PORT || 3000
-const tempID = '62407f0b58aa79d8dbe701db'  //id for default benefactor
+const tempID = '6241ebb70f1c34a4f74467a3'  //id for default benefactor
  
 
 const express = require('express')
@@ -199,7 +199,7 @@ app.post('/notifications/:id', (req, res) =>{
             color: color
         }
         // if name found in benefactor user list, notify else ignore
-        // 'http://localhost:3000/notifications/1234567?lat=24&lon=23&vib=65&pulse=40&name=myName&color=red'
+        // 'https://server-ams-backend.herokuapp.com/notifications/1234567?lat=24&lon=23&vib=65&pulse=40&name=myName&color=red'
         // io.sockets.in(req.params.id).emit('redNotif', data)
 
         Benefactor.findOne({_id: req.params.id}, (err, found) =>{
@@ -222,7 +222,7 @@ app.post('/notifications/:id', (req, res) =>{
     }
     if(color === 'blue'){
         // incoming user request
-        //http://localhost:3000/notifications/1234567?color=blue&uid=1234567890
+        //https://server-ams-backend.herokuapp.com/notifications/1234567?color=blue&uid=1234567890
         User.findOne({_id: req.query.uid}, (err, found) => {
             if(err)
                 throw err
