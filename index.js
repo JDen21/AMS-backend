@@ -223,7 +223,7 @@ app.post('/notifications/:id/:name', (req, res) =>{
     if(color === 'blue'){
         // incoming user request
         //https://server-ams-backend.herokuapp.com/notifications/1234567?color=blue&uid=1234567890
-        User.findOne({name: req.params.name}, (err, found) => {
+        User.findOne({_id: req.query.uid}, (err, found) => {
             if(err)
                 throw err
             if(found){
@@ -237,7 +237,8 @@ app.post('/notifications/:id/:name', (req, res) =>{
                     email: found.email,
                     color: 'blue'
                 }
-                io.sockets.in(found._id).emit('blueNotif', data)
+                Benefactor.findOne
+                io.sockets.in().emit('blueNotif', data)
             }
 
         })
