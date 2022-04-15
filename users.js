@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const [User, Benefactor] = require('./database')
+const fileEdit = require('./codeCustom')
+// const fs = require('fs-extra')
 
 // user page customizes
 router.post('/init/:id', (req,res) =>{
@@ -68,16 +70,16 @@ router.post('/change-benefactor/:id', (req, res) => {
             throw err
         if(found){
             Benefactor.findOneAndUpdate(queryBenefactor, {
-                $push: {
+                $push: { 
                     requestIDs: found
                 }
             }, options, (err2, found2) =>{
-                if(err2) 
+                if(err2)  
                     throw err2
                 if(found2){  
                     User.findOneAndUpdate({_id:req.params.id},{request: found2._id}, options)
                 }
-            }) 
+            })  
 
        
         }
@@ -87,10 +89,20 @@ router.post('/change-benefactor/:id', (req, res) => {
         
 })
  
-router.post('/code/:id', (req,res) =>{
+router.post('/code/:uid', (req,res) =>{
     // customize test.txt
     // send to frontend
-   res.download('./test.txt') 
+//    const file = new Promise(function(resolve, reject){
+       fileEdit(req.params.uid)
+           
+    //    resolve()
+    //    reject()
+//    })
+//    file.then(()=>{        
+        res.download('./UserFiles/'+req.params.uid+'.ino')
+//    }, (err)=>{
+    //    console.log(err)
+//    })  
 })
 
-module.exports = router
+module.exports = router 

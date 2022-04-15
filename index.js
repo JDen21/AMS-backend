@@ -1,9 +1,10 @@
 const port =  process.env.PORT || 3000
-const tempID = '6241ebb70f1c34a4f74467a3'  //id for default benefactor
- 
+const tempID = '625853c6cacaa3ad38324c6d'  //id for default benefactor
+const SALT = 10 
 
 const express = require('express')
 const cors = require('cors')
+const bcrypt = require('bcrypt')
 const [User, Benefactor] = require('./database')
 const userRoutes = require('./users')
 const benefRoutes = require('./benefactor')
@@ -47,45 +48,60 @@ app.get('/', (req,res) =>{
 
 // login
 app.post('/login/:type',(req,res) => {
-    const data = { 
-        $and:[
-           { name: req.body.name},
-           {password: req.body.password}
-        ]
-    }
-    // console.log(data)
+   
+    // const data = { 
+    //     $and:[
+    //        { name: req.body.name},
+    //        {password: req.body.password}
+    //     ]
+    // }
+    
+    
     if(req.params.type === 'benefactor'){
-        Benefactor.findOne(data, (err, found) =>{
+    Benefactor.findOne({ name: req.body.name}, (err, found) =>{
             if(err)
                 console.log('/login: ' + err)
             if(!found)
-                res.send('account not found')
-            if(found)
-                res.send(found._id)
-            // console.log(found)
+                res.send('account not found') 
+            if(found){
+                bcrypt.compare(req.body.password, found.password).then(result=>{
+                    if(result)
+                        res.send(found._id)
+                    else
+                    res.sendStatus(0)
+                })
+            }
+               
         })
     }
 
-    if(req.params.type === 'user'){
-        User.findOne(data, (err, found) =>{
+    if(req.params.type === 'user') {
+        User.findOne({ name: req.body.name}, (err, found) =>{
             if(err)
                 console.log('/login: ' + err)
-            if(!found)
+            if(!found) 
                 res.send('account not found')
-            if(found)
-                res.send(found._id)
-            // console.log(found) 
-        })
+            if(found){
+                bcrypt.compare(req.body.password, found.password).then(result=>{
+                if(result)  
+                    res.send(found._id)
+                else
+                    res.sendStatus(0)
+                })
+            }
+        }) 
     }
 })
-
+ 
 // signup
 
 app.post('/signup/:type', (req,res) =>{
-    
+     
+   
+
     if(req.params.type === 'benefactor'){
         // define data content
-        // console.log(req.body.password)
+        // console.log(req.body.password) 
         const data = {
             name: req.body.name, 
             mobile: req.body.number,
@@ -97,14 +113,20 @@ app.post('/signup/:type', (req,res) =>{
             userIDs: [],
             requestIDs: []
         }
-        const benefactor = new Benefactor(data)
-        // console.log(benefactor._id)
-        benefactor.save((err,saved) =>{
-            if(err)
-                res.send({response: err})
-            res.status(200).send({id: benefactor._id})
-            
+
+        bcrypt.hash(req.body.password, SALT).then((hash)=>{
+            data.password = hash
+            const benefactor = new Benefactor(data)
+            // console.log(benefactor._id)
+            benefactor.save((err,saved) =>{
+                if(err)
+                    res.send({response: err})
+                res.status(200).send({id: benefactor._id})
+                
+            })
         })
+
+       
     }
     if(req.params.type === 'user'){
 
@@ -114,7 +136,7 @@ app.post('/signup/:type', (req,res) =>{
             name: req.body.name, 
             mobile: req.body.mobile,
             device: req.body.device,
-            password: req.body.password,
+            password: req.body.password, 
             benefactorID: tempID,  //add default id
             vibration: 0,
             pulse: 0,
@@ -128,13 +150,18 @@ app.post('/signup/:type', (req,res) =>{
         }
         
         // console.log('here') 
-        const user = new User(data)
-        user.save((err,saved) =>{
-            if(err)
-                res.send({response:err})
-            else
-                res.status(200).send({id: user._id}) 
-        }) 
+        bcrypt.hash(req.body.password, SALT).then((hash)=>{
+            data.password = hash
+            const user = new User(data)
+            user.save((err,saved) =>{
+                if(err)
+                    res.send({response:err})
+                else
+                    res.status(200).send({id: user._id}) 
+            })  
+        })  
+ 
+        
     }
 }) 
 
@@ -182,73 +209,73 @@ app.post('/gsm-update/:id', (req,res) => {
     })
 })
 
-// path for notifs in benefactor page
-// query color=red, yellow, blue
-// ?color=red
-app.post('/notifications/:id/:name', (req, res) =>{
-    const color = req.query.color
-
-    if(color === 'red'){
-        // respond to accident
-        const data = {
-            lat: req.query.lat,
-            lon: req.query.lon,
-            vib: req.query.vib,
-            pulse: req.query.pulse,
-            name: req.query.name,
-            color: color
-        }
-        // if name found in benefactor user list, notify else ignore
-        // 'https://server-ams-backend.herokuapp.com/notifications/1234567?lat=24&lon=23&vib=65&pulse=40&name=myName&color=red'
-        // io.sockets.in(req.params.id).emit('redNotif', data)
-
-        Benefactor.findOne({_id: req.params.id}, (err, found) =>{
-            if(err)
-                throw err
-            if(!found)
-                console.log('no found benefactor with the given id') //benefactor status 404
-            if(found){
-                found.userIDs.forEach(uid => {
-                    if(uid.name === data.name)
-                        io.sockets.in(req.params.id).emit('redNotif', uid, data)
-                });
-            }
-            
-        })
+app.post('/red-notif/:bid/:uid', (req, res) => {
+    
+    // res.send('works')
+    const data = {
+        latitude: req.query.latitude,
+        longhitude: req.query.longhitude,
+        vibration: req.query.vibration,
+        pulse: req.query.pulse,
+        name: '',
+        email: '',
+        phone: ''
     }
-    if(color === 'yellow'){
-        // remove user from user list
- 
-    } 
-    if(color === 'blue'){
-        // incoming user request
-        //https://server-ams-backend.herokuapp.com/notifications/1234567/default?color=blue&uid=1234567890
-        User.findOne({_id: req.query.uid}, (err, found) => {
-            if(err)
-                throw err
-            if(found){
-                const data = {
-                    name: found.name,
-                    address: found.address,
-                    update: found.update,
-                    mobile: found.mobile,
-                    device: found.device,
-                    gender: found.gender,
-                    email: found.email,
-                    color: 'blue'
-                }
-                Benefactor.findOne({name: req.params.name}, (err1, found1)=>{
-                    if(err1)
-                        throw err1
-                    if(found1){
-                        io.sockets.in(found1._id).emit('blueNotif', data)
-                    }
-                })
-               
-            }
 
+    User.findOne({_id: req.params.uid}, (err, found)=>{
+        if(err)
+            throw err
+        if(!found)
+            console.log("not in database")
+        data.name = found.name
+        data.email = found.email
+        data.phone = found.mobile
+    })
+
+    Benefactor.findOne({_id: req.params.bid}, (err, found)=>{
+        if(err)
+            throw err;
+        if(!found)
+            console.log('not found');
+        // console.log(found)
+        found.userIDs.forEach(user =>{
+            if(user._id.valueOf() === req.params.uid){
+                // console.log('reached here')
+                // console.log(req.params.bid)
+                io.sockets.in(req.params.bid).emit('redNotif', data)
+            }
         })
-    }
+        res.send('sent works')
+    })
+})
+
+app.post('/blue-notif/:uid', (req, res) =>{
+    const bname = req.body.request
+
+    Benefactor.findOne({name: bname}, (err, found)=>{
+        if(err)
+            throw err
+        if(!found)
+            console.log('no benefactor with the name found')
+
+        User.findOne({_id: req.params.uid}, (err1, found1)=>{
+            if(err1)
+                throw err1
+            if(!found1)
+                console.log('no user found1 ')
+            const data = {
+                name: found1.name,
+                address: found1.address,
+                email: found1.email,
+                phone: found1.mobile,
+                gender: found1.gender
+            }
+            // console.log(data)
+            io.sockets.in(found._id.valueOf()).emit('blueNotif', data)
+        })   
+    }) 
+    
+    res.send('blue notif')
 })
 
 http.listen(port,()=>{ 
