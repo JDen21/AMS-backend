@@ -1,5 +1,5 @@
 const port =  process.env.PORT || 3000
-const tempID = '625853c6cacaa3ad38324c6d'  //id for default benefactor
+const tempID = '6241ebb70f1c34a4f74467a3'  //id for default benefactor
 const SALT = 10 
 
 const express = require('express')

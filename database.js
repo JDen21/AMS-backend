@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 const { Schema } = mongoose
 
-// mongoose.connect('mongodb+srv://admin-den:AdminDinosaur21@amsdatabase.bgx5x.mongodb.net/AMSDB', {useNewUrlParser: true, useUnifiedTopology: true});
-mongoose.connect('mongodb://localhost:27017/AMSDB', {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect('mongodb+srv://admin-den:AdminDinosaur21@amsdatabase.bgx5x.mongodb.net/AMSDB', {useNewUrlParser: true, useUnifiedTopology: true});
+// mongoose.connect('mongodb://localhost:27017/AMSDB', {useNewUrlParser: true, useUnifiedTopology: true});
 
 const UserSchema = new Schema({
     name: {
