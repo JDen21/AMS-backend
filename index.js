@@ -1,5 +1,5 @@
 const port =  process.env.PORT || 3000
-const tempID = '625853c6cacaa3ad38324c6d'  //id for default benefactor
+const tempID = '6241ebb70f1c34a4f74467a3'  //id for default benefactor
 const SALT = 10 
 
 const express = require('express')
@@ -205,7 +205,9 @@ app.post('/gsm-update/:id', (req,res) => {
     
     User.findOneAndUpdate({_id: req.params.id}, data, options, (err, found)=>{
         // console.log(found)
-        res.send(found)
+        // res.send(found)
+        if(found)
+            res.sendStatus(200)
     })
 })
 
@@ -224,9 +226,9 @@ app.post('/red-notif/:bid/:uid', (req, res) => {
 
     User.findOne({_id: req.params.uid}, (err, found)=>{
         if(err)
-            throw err
+            res.sendStatus(500)
         if(!found)
-            console.log("not in database")
+            res.sendStatus(404)
         data.name = found.name
         data.email = found.email
         data.phone = found.mobile
@@ -245,7 +247,7 @@ app.post('/red-notif/:bid/:uid', (req, res) => {
                 io.sockets.in(req.params.bid).emit('redNotif', data)
             }
         })
-        res.send('sent works')
+        res.sendStatus(200)
     })
 })
 
@@ -260,7 +262,7 @@ app.post('/blue-notif/:uid', (req, res) =>{
 
         User.findOne({_id: req.params.uid}, (err1, found1)=>{
             if(err1)
-                throw err1
+                throw err1 
             if(!found1)
                 console.log('no user found1 ')
             const data = {

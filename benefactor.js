@@ -4,6 +4,7 @@ const router = express.Router()
 const [User, Benefactor] = require('./database')
 
 
+
 // benefactor page customizes
 router.post('/init/:id', (req,res) =>{
     Benefactor.findOne({_id: req.params.id}, (err, found)=>{
