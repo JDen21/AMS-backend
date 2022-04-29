@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const [User, Benefactor] = require('./database')
+const fileEdit = require('./codeCustom')
+// const fs = require('fs-extra')
 
 // user page customizes
 router.post('/init/:id', (req,res) =>{
@@ -51,13 +53,56 @@ router.post('/init/:id', (req,res) =>{
 })
 
 router.post('/change-benefactor/:id', (req, res) => {
-    res.send('apple')
-})
 
-router.post('/code/:id', (req,res) =>{
+    const options = {
+        returnDocument: 'after',
+        returnNewDocument: true
+    }
+    
+    const queryBenefactor =  {name: req.body.request}
+        
+    // console.log(queryBenefactor)
+    // saves user to chosen benefactors requestIDs
+    // saves chosen benefactors id to users pending request
+    // benefactor still has to accept tho
+    User.findOne({_id: req.params.id}, (err, found) =>{
+        if(err)
+            throw err
+        if(found){
+            Benefactor.findOneAndUpdate(queryBenefactor, {
+                $push: { 
+                    requestIDs: found
+                }
+            }, options, (err2, found2) =>{
+                if(err2)  
+                    throw err2
+                if(found2){  
+                    User.findOneAndUpdate({_id:req.params.id},{request: found2._id}, options)
+                }
+            })  
+
+       
+        }
+    } )
+
+
+        
+})
+ 
+router.post('/code/:uid', (req,res) =>{
     // customize test.txt
     // send to frontend
-   res.download('./test.txt')
+//    const file = new Promise(function(resolve, reject){
+       fileEdit(req.params.uid)
+           
+    //    resolve()
+    //    reject()
+//    })
+//    file.then(()=>{        
+        res.download('./UserFiles/'+req.params.uid+'.ino')
+//    }, (err)=>{
+    //    console.log(err)
+//    })  
 })
 
-module.exports = router
+module.exports = router 
